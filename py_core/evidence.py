@@ -2,12 +2,13 @@ from .board import *
 from .iterator import *
 
 class Evidence():
-    def __init__(self, only_one=False, trace_back_fn=iterator):
+    def __init__(self, counter_move=False, only_one=False, trace_back_fn=iterator):
         self.memory = dict()
         self.memory[()] = ()
         self.memory[(1,)] = False
         self.only_one=only_one
         self.trace_back_fn = trace_back_fn
+        self.counter_move = counter_move
 
     def get(self, board):
         if board.data in self.memory: return self.memory[board.data]
@@ -16,12 +17,14 @@ class Evidence():
             child = board.consume(*move)
             if self.get(child) == False:
                 found = True
+                if board.flipped: move = move[::-1]
+                counter = move if self.counter_move else child.data
                 if self.only_one:
-                    self.memory[board.data] = child.data
+                    self.memory[board.data] = counter
                     break
                 else: 
                     self.memory[board.data] = self.memory.get(board.data, [])
-                    self.memory[board.data].append(child.data)
+                    self.memory[board.data].append(counter)
         if not found:
             self.memory[board.data] = False
         return self.memory[board.data]

@@ -5,30 +5,35 @@ def trim(board: tuple)->tuple:
     return board[:length]
 def flip(board: tuple)->tuple:
     return tuple(map(sum, zip(*map(lambda a: [1] * a + [0] * (board[0] - a), board))))
-def sim(board: tuple)->tuple:
+def sim(board: tuple, output)->tuple:
     board = trim(board)
     length = len(board)
+    output.flipped = False
     if length > 0 and board[0] < length:
-        return flip(board)
+        output.flipped = True
+        board = flip(board)
     elif length > 0 and board[0] == length:
         other = flip(board)
         if other > board:
+            output.flipped = True
             board = other
     return board
 
 class Board():
     def __init__(self, data, auto=True):
-        self.data = sim(tuple(data))
+        self.data = sim(tuple(data), self)
         if auto:
             other = self.clone(False)._flip()
             loth = len(other.data)
             lsel = len(self.data)
             if lsel > loth or lsel == loth and self.data > other.data:
                 self.data = other.data
+                self.flipped = other.flipped
     def clone(self, auto=True):
         return Board(self.data, auto)
     
     def _flip(self):
+        self.flipped = not self.flipped
         self.data = tuple(flip(self.data))
         return self
 

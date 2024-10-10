@@ -3,3 +3,4 @@
 my-venv
 temp
 shared.so
+__pycache__
