@@ -16,6 +16,17 @@ class AbstractIterator {
         virtual ~AbstractIterator() {}
 };
 
+enum class IteratorCode {
+    NORMAL,
+//  REVERSED,
+    ZIGZAG
+};
+
+class IteratorFactory {
+    public:
+        static AbstractIterator* create(IteratorCode code, const Board* board);
+};
+
 class Iterator : public AbstractIterator {
     private:
         std::list<std::pair<int, int>>::const_iterator prev, it;
@@ -23,6 +34,16 @@ class Iterator : public AbstractIterator {
         AbstractIterator& advance();
     public:
         Iterator(const Board* board);
+        virtual void init();
+};
+
+class ZigZagIterator : public AbstractIterator {
+    private:
+        int limit;
+    protected:
+        AbstractIterator& advance();
+    public:
+        ZigZagIterator(const Board* board);
         virtual void init();
 };
 

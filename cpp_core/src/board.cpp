@@ -1,18 +1,30 @@
 #include "board.h"
 #include <sstream>
+#include <utility>
+#include <functional>
 
 using namespace std;
 
-bool PairListEqual::operator()(const list<pair<int, int>>& lhs, const list<pair<int, int>>& rhs ) const {
-    return lhs.size() == rhs.size() && equal(lhs.begin(), lhs.end(), rhs.begin());
+bool PairListEqual::operator()(const list<pair<int, int>> *lhs, const list<pair<int, int>> *rhs ) const {
+    return lhs->size() == rhs->size() && equal(lhs->begin(), lhs->end(), rhs->begin());
 }
 
-size_t PairListHash::operator()(const list<pair<int, int>>& list) const {
-    size_t hashVal = 0;
-    for (const auto& p : list) {
-        hashVal ^= hash<int>()(p.first) ^ (hash<int>()(p.second) << 1);
+// size_t PairListHash::operator()(const list<pair<int, int>>* list) const {
+//     size_t hashVal = 0;
+//     for (const auto& p : *list) {
+//         hashVal ^= hash<int>()(p.first) ^ (hash<int>()(p.second) << 1);
+//     }
+//     return hashVal;
+// }
+
+size_t PairListHash::operator()(const list<pair<int, int>> *list) const {
+    size_t value = 0;
+    hash<int> haser;
+    for (const auto& p : *list) {
+        value ^= haser(p.first) + 0x9e3779b9 + (value << 6) + (value >> 2);
+        value ^= haser(p.second) + 0x9e3779b9 + (value << 6) + (value >> 2);
     }
-    return hashVal;
+    return value;
 }
 
 const list<pair<int, int>>& Board::get_generators() const {
@@ -98,31 +110,38 @@ bool Board::can_reach(const Board* target) const {
         );
 }
 
+bool Board::contains(pair<int, int>& cell) const {
+    for (auto &[a, b] : *p_generators) {
+        if (cell.first >= a && cell.second >= b) return false;
+    }
+    return true;
+}
+
 const Board* Board::chomp(const pair<int, int> &position, bool* is_flipped) const {
-    list generators(*p_generators);
-    auto it = generators.begin();
-    while (it != generators.end()) {
+    list<pair<int, int>> *generators = new list(*p_generators);
+    auto it = generators->begin();
+    while (it != generators->end()) {
         if (position.first < it->first) ++it;
         else if (position.first == it->first) {
             if (position.second >= it->second) return this;
-            generators.insert(next(it), position);
+            generators->insert(next(it), position);
             it = next(it);
             break;
         }
         else {
-            generators.insert(it, position);
+            generators->insert(it, position);
             it = prev(it);
             break;
         }
     }
-    while (it != generators.begin() && it->first <= prev(it)->first && it->second <= prev(it)->second) {
-        generators.erase(prev(it));
+    while (it != generators->begin() && it->first <= prev(it)->first && it->second <= prev(it)->second) {
+        generators->erase(prev(it));
     }
     return get_board(generators, is_flipped, true);
 }
 
 const Board* Board::get_board(int width, int height, bool* is_flipped) {
-    list<pair<int, int>> generators({{width, 0}, {0, height}});
+    list<pair<int, int>> *generators = new list<pair<int, int>>({{width, 0}, {0, height}});
     return get_board(generators, is_flipped);
 }
 
@@ -134,7 +153,7 @@ const Board* Board::get_board(string input, bool* is_flipped) {
     input = input.substr(1, input.size() - 2);
     stringstream ss(input);
     string raw_pair;
-    list<pair<int, int>> pairs;
+    list<pair<int, int>> *pairs = new list<pair<int, int>>();
     bool first = true;
     string pair;
     while (getline(ss, raw_pair, ',')) {
@@ -149,27 +168,30 @@ const Board* Board::get_board(string input, bool* is_flipped) {
             const size_t comma = pair.find(',');
             int x = stoi(pair.substr(1, comma - 1));
             int y = stoi(pair.substr(comma + 1, pair.size() - comma - 2));
-            pairs.emplace_back(x, y);
+            pairs->emplace_back(x, y);
         }
         first ^= true;
     }
     return get_board(pairs, is_flipped);
 }
 
-const Board* Board::get_board(list<pair<int, int>>& generators, bool* is_flipped, bool skip_sorrting) {
-    simplify(generators, is_flipped, skip_sorrting);
+const Board* Board::get_board(list<pair<int, int>> *generators, bool* is_flipped, bool skip_sorrting) {
+    simplify(*generators, is_flipped, skip_sorrting);
     auto it = boards.find(generators);
     if (it != boards.end()) {
         return it->second;
     }
     boards.insert({generators, nullptr});
     it = boards.find(generators);
-    it->second = new Board(&(it->first));
+    it->second = new Board(it->first);
     return it->second;
 }
 
 void Board::clean_up() {
-    for (auto&[fst, snd] : boards) delete snd;
+    for (auto&[fst, snd] : boards) {
+        delete fst;
+        delete snd;
+    }
     boards.clear();
 }
 
@@ -209,4 +231,4 @@ void Board::simplify(list<pair<int, int>>& generators, bool* is_flipped, bool sk
     prev(generators.end())->first = 0;
 }
 
-unordered_map<list<std::pair<int, int>>, Board*, PairListHash, PairListEqual> Board::boards;
+unordered_map<list<std::pair<int, int>>*, Board*, PairListHash, PairListEqual> Board::boards;

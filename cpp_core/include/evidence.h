@@ -2,6 +2,7 @@
 #define EVIDENCE
 
 #include "board.h"
+#include "iterator.h"
 #include <list>
 #include <unordered_map>
 #include <set>
@@ -22,9 +23,10 @@ struct BoardHash {
 
 class Evidence {
 private:
+    IteratorCode code;
     std::unordered_map<const Board*, Proof*, BoardHash, BoardEqual> memory;
 public:
-    Evidence();
+    Evidence(IteratorCode code);
     Proof* get(const Board* board);
     ~Evidence();
 };

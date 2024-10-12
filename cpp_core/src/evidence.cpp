@@ -10,7 +10,7 @@ size_t BoardHash::operator()(const Board* board) const {
     return reinterpret_cast<std::size_t>(board);
 }
 
-Evidence::Evidence() {
+Evidence::Evidence(IteratorCode code) : code(code) {
     memory.insert({ Board::get_board(1, 1), nullptr} );
 }
 
@@ -21,9 +21,9 @@ Proof* Evidence::get(const Board* board) {
         result = it->second;
     }
     else {
-        Iterator iterator(board);
-        while (iterator.hasNext()) {
-            const pair<int, int> move = iterator.getNext();
+        AbstractIterator* iterator = IteratorFactory::create(code, board);
+        while (iterator->hasNext()) {
+            const pair<int, int> move = iterator->getNext();
             if (get(board->chomp(move)) == nullptr) {
                 result = new Proof(move);
                 memory.insert({ board, result });
