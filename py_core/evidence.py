@@ -14,7 +14,7 @@ class Evidence():
         if board.data in self.memory: return self.memory[board.data]
         found = False
         for move in self.trace_back_fn(board):
-            child = board.consume(*move)
+            child = board.chomp(*move)
             if self.get(child) == False:
                 found = True
                 if board.flipped: move = move[::-1]

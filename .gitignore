@@ -1,6 +1,7 @@
 .vscode
 .idea
-my-venv
-temp
+/my-venv/
+/temp/
 shared.so
-__pycache__
+__pycache__/
+build/

@@ -3,7 +3,7 @@
 
 using namespace std;
 
-bool ListPairEqual::operator()(const list<pair<int, int>>& lhs, const list<pair<int, int>>& rhs ) const {
+bool PairListEqual::operator()(const list<pair<int, int>>& lhs, const list<pair<int, int>>& rhs ) const {
     return lhs.size() == rhs.size() && equal(lhs.begin(), lhs.end(), rhs.begin());
 }
 
@@ -98,7 +98,7 @@ bool Board::can_reach(const Board* target) const {
         );
 }
 
-const Board* Board::consume(const pair<int, int> &position) const {
+const Board* Board::chomp(const pair<int, int> &position, bool* is_flipped) const {
     list generators(*p_generators);
     auto it = generators.begin();
     while (it != generators.end()) {
@@ -118,15 +118,15 @@ const Board* Board::consume(const pair<int, int> &position) const {
     while (it != generators.begin() && it->first <= prev(it)->first && it->second <= prev(it)->second) {
         generators.erase(prev(it));
     }
-    return get_board(generators);
+    return get_board(generators, is_flipped, true);
 }
 
-const Board* Board::get_board(int width, int height) {
+const Board* Board::get_board(int width, int height, bool* is_flipped) {
     list<pair<int, int>> generators({{width, 0}, {0, height}});
-    return get_board(generators);
+    return get_board(generators, is_flipped);
 }
 
-const Board* Board::get_board(string input) {
+const Board* Board::get_board(string input, bool* is_flipped) {
     input.erase(std::remove_if(input.begin(), input.end(), ::isspace), input.end());
     if (input.length() < 2 || input.front() != '<' || input.back() != '>' ) {
         throw std::invalid_argument("1. Invalid format " + input);
@@ -153,11 +153,11 @@ const Board* Board::get_board(string input) {
         }
         first ^= true;
     }
-    return get_board(pairs);
+    return get_board(pairs, is_flipped);
 }
 
-const Board* Board::get_board(list<pair<int, int>> generators) {
-    simplify(generators);
+const Board* Board::get_board(list<pair<int, int>>& generators, bool* is_flipped, bool skip_sorrting) {
+    simplify(generators, is_flipped, skip_sorrting);
     auto it = boards.find(generators);
     if (it != boards.end()) {
         return it->second;
@@ -182,9 +182,9 @@ void Board::flip(list<pair<int, int>>& list) {
     }
 }
 
-void Board::simplify(list<pair<int, int>>& generators) {
+void Board::simplify(list<pair<int, int>>& generators, bool* is_flipped, bool skip_sorting) {
     if (generators.empty()) generators.emplace_back(0, 0);
-    generators.sort([](const pair<int, int>& lhs, const pair<int, int>& rhs) {
+    if (!skip_sorting) generators.sort([](const pair<int, int>& lhs, const pair<int, int>& rhs) {
         return lhs.first > rhs.first || lhs.first == rhs.first && lhs.second < rhs.second;
     });
     for (auto it = generators.begin(); it != prev(generators.end());) {
@@ -196,14 +196,17 @@ void Board::simplify(list<pair<int, int>>& generators) {
         }
         else generators.erase(nit);
     }
+    if (is_flipped != nullptr) *is_flipped = false;
     for (auto left = generators.begin(), right = prev(generators.end()); left != generators.end(); ++left, --right) {
+        if (left->first == right->second) continue;
         if (left->first < right->second) {
-            flip(generators);
-            break;
+            flip(generators); 
+            if (is_flipped != nullptr) *is_flipped = true;
         }
+        break;
     }
     generators.begin()->second = 0;
     prev(generators.end())->first = 0;
 }
 
-unordered_map<list<std::pair<int, int>>, Board*, PairListHash, ListPairEqual> Board::boards;
+unordered_map<list<std::pair<int, int>>, Board*, PairListHash, PairListEqual> Board::boards;

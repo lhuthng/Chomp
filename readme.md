@@ -27,7 +27,7 @@ This script will guide you through setting up a virtual environment for your Pyt
     ```bash
     source my-venv/bin/activate
 
-4. **(Optional) Upgrade the pip**
+4. **Upgrade the pip**
     ```bash
     pip install --upgrade pip
 
@@ -38,3 +38,7 @@ This script will guide you through setting up a virtual environment for your Pyt
 6. **Install matplotlib library**
     ```bash
     pip install matplotlib
+
+7. **Install cmake**
+    ```
+    apt install cmake

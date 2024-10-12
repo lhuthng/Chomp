@@ -37,7 +37,7 @@ class Board():
         self.data = tuple(flip(self.data))
         return self
 
-    def consume(self, x, y):
+    def chomp(self, x, y):
         data = list(self.data)
         for row in range(len(data)):
             if x < data[row] and y <= row:
@@ -68,8 +68,8 @@ class Board():
         for row, col in enumerate(self.data):
             if col != last:
                 last = col
-                gens.append(str((last, row)))
-        gens.append(str((0, len(self))))
+                gens.append(f'({last},{row})')
+        gens.append(f'({0},{len(self)})')
         return '<' + ','.join(gens) + '>'
 
     def can_reach(self, other, traced=False):

@@ -14,13 +14,12 @@ pair<int, int> AbstractIterator::getNext() {
     return result;
 }
 
-Iterator::Iterator(const Board* board) {
+AbstractIterator::AbstractIterator(const Board* board) {
     this->board = board;
-    it = board->get_generators().begin();
-    prev = it++;
-    end = {0, std::prev(board->get_generators().end())->second};
-    if (it == board->get_generators().end()) current = {0, 1};
-    else current = {0, 0};
+}
+
+Iterator::Iterator(const Board* board) : AbstractIterator(board) {
+    init();
 }
 
 AbstractIterator& Iterator::advance() {
@@ -35,4 +34,12 @@ AbstractIterator& Iterator::advance() {
         }
     }
     return *this;
+}
+
+void Iterator::init() {
+    it = this->board->get_generators().begin();
+    prev = it++;
+    end = {0, std::prev(board->get_generators().end())->second};
+    if (it == board->get_generators().end()) current = {0, 1};
+    else current = {1, 0};
 }

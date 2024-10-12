@@ -16,5 +16,6 @@ include_directories(
 add_executable(Main 
         src/board.cpp
         src/iterator.cpp
+        src/evidence.cpp
         main.cpp
 )
