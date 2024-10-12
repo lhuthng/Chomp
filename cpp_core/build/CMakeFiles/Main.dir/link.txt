@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/Main.dir/src/board.cpp.o CMakeFiles/Main.dir/src/iterator.cpp.o CMakeFiles/Main.dir/main.cpp.o -o Main 

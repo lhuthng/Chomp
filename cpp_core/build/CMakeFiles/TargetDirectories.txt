@@ -1,3 +1,0 @@
-/home/thang/Uni/Chomp/cpp_core/build/CMakeFiles/Main.dir
-/home/thang/Uni/Chomp/cpp_core/build/CMakeFiles/edit_cache.dir
-/home/thang/Uni/Chomp/cpp_core/build/CMakeFiles/rebuild_cache.dir
