@@ -22,7 +22,7 @@ struct BoardHash {
 };
 
 class Evidence {
-private:
+protected:
     IteratorCode code;
     std::unordered_map<const Board*, Proof*, BoardHash, BoardEqual> memory;
 public:

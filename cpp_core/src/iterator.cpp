@@ -40,7 +40,7 @@ AbstractIterator& Iterator::advance() {
 AbstractIterator* IteratorFactory::create(IteratorCode code, const Board* board) {
     switch (code) {
         case IteratorCode::NORMAL: return new Iterator(board);
-        case IteratorCode::ZIGZAG: return new ZigZagIterator(board);
+        case IteratorCode::ZIGZAC: return new ZigZagIterator(board);
     }
     return nullptr;
 };

@@ -100,7 +100,7 @@ class Board():
 
     @staticmethod
     def get_board(ideal):
-        s = ideal[1:-1]
+        s = ideal[1:-1].replace(' ', '')
         r = []
         v = 0
         c = 0

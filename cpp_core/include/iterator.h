@@ -19,7 +19,7 @@ class AbstractIterator {
 enum class IteratorCode {
     NORMAL,
 //  REVERSED,
-    ZIGZAG
+    ZIGZAC
 };
 
 class IteratorFactory {

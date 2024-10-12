@@ -10,7 +10,7 @@ int main() {
     bool test = false;
     auto start = chrono::high_resolution_clock::now();
     Board const *board = Board::get_board("<(15,0),(0,12)>", &test);
-    Evidence e(IteratorCode::ZIGZAG);
+    Evidence e(IteratorCode::ZIGZAC);
     Proof* proof = e.get(board);
     if (proof == nullptr) {
         cout << "Nope" << endl;   

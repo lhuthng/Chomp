@@ -9,23 +9,25 @@ bool PairListEqual::operator()(const list<pair<int, int>> *lhs, const list<pair<
     return lhs->size() == rhs->size() && equal(lhs->begin(), lhs->end(), rhs->begin());
 }
 
-// size_t PairListHash::operator()(const list<pair<int, int>>* list) const {
-//     size_t hashVal = 0;
-//     for (const auto& p : *list) {
-//         hashVal ^= hash<int>()(p.first) ^ (hash<int>()(p.second) << 1);
-//     }
-//     return hashVal;
-// }
-
-size_t PairListHash::operator()(const list<pair<int, int>> *list) const {
-    size_t value = 0;
-    hash<int> haser;
-    for (const auto& p : *list) {
-        value ^= haser(p.first) + 0x9e3779b9 + (value << 6) + (value >> 2);
-        value ^= haser(p.second) + 0x9e3779b9 + (value << 6) + (value >> 2);
-    }
-    return value;
+#ifdef SLOW_HASH
+    size_t PairListHash::operator()(const list<pair<int, int>>* list) const {
+        size_t hashVal = 0;
+        for (const auto& p : *list) {
+            hashVal ^= hash<int>()(p.first) ^ (hash<int>()(p.second) << 1);
+        }
+        return hashVal;
 }
+#else
+    size_t PairListHash::operator()(const list<pair<int, int>> *list) const {
+        size_t value = 0;
+        hash<int> haser;
+        for (const auto& p : *list) {
+            value ^= haser(p.first) + 0x9e3779b9 + (value << 6) + (value >> 2);
+            value ^= haser(p.second) + 0x9e3779b9 + (value << 6) + (value >> 2);
+        }
+        return value;
+    }
+#endif
 
 const list<pair<int, int>>& Board::get_generators() const {
     return *p_generators;
