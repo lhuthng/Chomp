@@ -17,5 +17,6 @@ add_executable(Main
         src/board.cpp
         src/iterator.cpp
         src/evidence.cpp
+        src/pattern.cpp
         main.cpp
 )

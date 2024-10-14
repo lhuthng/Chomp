@@ -9,25 +9,22 @@ bool PairListEqual::operator()(const list<pair<int, int>> *lhs, const list<pair<
     return lhs->size() == rhs->size() && equal(lhs->begin(), lhs->end(), rhs->begin());
 }
 
-#ifdef SLOW_HASH
-    size_t PairListHash::operator()(const list<pair<int, int>>* list) const {
-        size_t hashVal = 0;
-        for (const auto& p : *list) {
-            hashVal ^= hash<int>()(p.first) ^ (hash<int>()(p.second) << 1);
-        }
-        return hashVal;
-}
-#else
-    size_t PairListHash::operator()(const list<pair<int, int>> *list) const {
-        size_t value = 0;
-        hash<int> haser;
-        for (const auto& p : *list) {
-            value ^= haser(p.first) + 0x9e3779b9 + (value << 6) + (value >> 2);
-            value ^= haser(p.second) + 0x9e3779b9 + (value << 6) + (value >> 2);
-        }
-        return value;
+// size_t PairListHash::operator()(const list<pair<int, int>>* list) const {
+//     size_t hashVal = 0;
+//     for (const auto& p : *list) {
+//         hashVal ^= hash<int>()(p.first) ^ (hash<int>()(p.second) << 1);
+//     }
+//         return hashVal;
+// }
+size_t PairListHash::operator()(const list<pair<int, int>> *list) const {
+    size_t value = 0;
+    hash<int> haser;
+    for (const auto& p : *list) {
+        value ^= haser(p.first) + 0x9e3779b9 + (value << 6) + (value >> 2);
+        value ^= haser(p.second) + 0x9e3779b9 + (value << 6) + (value >> 2);
     }
-#endif
+    return value;
+}
 
 const list<pair<int, int>>& Board::get_generators() const {
     return *p_generators;
@@ -112,7 +109,7 @@ bool Board::can_reach(const Board* target) const {
         );
 }
 
-bool Board::contains(pair<int, int>& cell) const {
+bool Board::contains(pair<int, int> cell) const {
     for (auto &[a, b] : *p_generators) {
         if (cell.first >= a && cell.second >= b) return false;
     }
@@ -234,3 +231,5 @@ void Board::simplify(list<pair<int, int>>& generators, bool* is_flipped, bool sk
 }
 
 unordered_map<list<std::pair<int, int>>*, Board*, PairListHash, PairListEqual> Board::boards;
+const Board* Board::EMPTY = Board::get_board(0, 0);
+const Board* Board::POISON = Board::get_board(1, 1);

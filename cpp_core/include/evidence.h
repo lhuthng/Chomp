@@ -1,5 +1,5 @@
 #ifndef EVIDENCE_H
-#define EVIDENCE
+#define EVIDENCE_H
 
 #include "board.h"
 #include "iterator.h"
@@ -10,7 +10,7 @@
 
 struct Proof {
     const std::pair<int, int> move;
-    Proof(const std::pair<int, int> move): move(move) {}
+    Proof(const std::pair<int, int>& move) : move(move) {}
 };
 
 struct BoardEqual {
@@ -27,8 +27,18 @@ protected:
     std::unordered_map<const Board*, Proof*, BoardHash, BoardEqual> memory;
 public:
     Evidence(IteratorCode code);
-    Proof* get(const Board* board);
+    virtual Proof* get(const Board* board);
     ~Evidence();
+};
+
+class ExtendedEvidence : public Evidence {
+private:
+    Proof* NULL_PROOF;
+    Proof* get(const Board* board, bool is_required);
+public:
+    ExtendedEvidence(IteratorCode code);
+    Proof* get(const Board* board);
+    ~ExtendedEvidence();
 };
 
 #endif

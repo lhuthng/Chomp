@@ -10,14 +10,13 @@ class Evidence():
         self.trace_back_fn = trace_back_fn
         self.counter_move = counter_move
 
-    def get(self, board):
+    def get(self, board, auto=True):
         if board.data in self.memory: return self.memory[board.data]
         found = False
         for move in self.trace_back_fn(board):
-            child = board.chomp(*move)
+            child = board.chomp(*move, auto)
             if self.get(child) == False:
                 found = True
-                if board.flipped: move = move[::-1]
                 counter = move if self.counter_move else child.data
                 if self.only_one:
                     self.memory[board.data] = counter

@@ -9,7 +9,7 @@ def load_cpp_scripts(debug=False):
     src_dir = 'src'
 
     scripts = [
-        'board', 'iterator', 'evidence'
+        'board', 'iterator', 'evidence', 'pattern'
     ]
     script_locations = ' '.join(map(lambda scr: f'{src_dir}/{scr}.cpp', scripts))
     command = f'g++ -std=c++17 -shared -o shared.so -I{include_dir} {script_locations} -fPIC'

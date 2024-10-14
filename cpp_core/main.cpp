@@ -3,24 +3,27 @@
 #include "iterator.h"
 #include "evidence.h"
 #include <chrono>
+#include <sstream>
 
 using namespace std;
 
-int main() {
-    bool test = false;
-    auto start = chrono::high_resolution_clock::now();
-    Board const *board = Board::get_board("<(15,0),(0,12)>", &test);
-    Evidence e(IteratorCode::ZIGZAC);
-    Proof* proof = e.get(board);
-    if (proof == nullptr) {
-        cout << "Nope" << endl;   
-    }
-    else {
-        cout << proof->move.first << " " << proof->move.second << endl;
+int find(Evidence* e, int q, int r) {
+    int p = q;
+    do {
+        stringstream ss;
+        ss << "<(" << p << ",0),(" << q << ",1),(" << r << ",2),(0,3)>";
+        Proof* proof = e->get(Board::get_board(ss.str()));
+        if (proof == nullptr) break;
+        else {
+            if (proof->move.second == 0) return proof->move.first;
+        }
+        p++;
+    } while (true);
+    return p;
+}
 
-    }
-    auto end = chrono::high_resolution_clock::now();
-    auto duration = chrono::duration_cast<chrono::milliseconds>(end - start);
-    cout << "Execution time: " << duration.count() << " milliseconds" << endl;
+int main() {
+    ExtendedEvidence e(IteratorCode::ZIGZAC);
+    cout << find(&e, 22, 17) << endl;
     Board::clean_up();
 }

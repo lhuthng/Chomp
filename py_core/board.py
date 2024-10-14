@@ -5,23 +5,24 @@ def trim(board: tuple)->tuple:
     return board[:length]
 def flip(board: tuple)->tuple:
     return tuple(map(sum, zip(*map(lambda a: [1] * a + [0] * (board[0] - a), board))))
-def sim(board: tuple, output)->tuple:
+def sim(board: tuple, output, auto=True)->tuple:
     board = trim(board)
     length = len(board)
     output.flipped = False
-    if length > 0 and board[0] < length:
-        output.flipped = True
-        board = flip(board)
-    elif length > 0 and board[0] == length:
-        other = flip(board)
-        if other > board:
+    if auto:
+        if length > 0 and board[0] < length:
             output.flipped = True
-            board = other
+            board = flip(board)
+        elif length > 0 and board[0] == length:
+            other = flip(board)
+            if other > board:
+                output.flipped = True
+                board = other
     return board
 
 class Board():
     def __init__(self, data, auto=True):
-        self.data = sim(tuple(data), self)
+        self.data = sim(tuple(data), self, auto)
         if auto:
             other = self.clone(False)._flip()
             loth = len(other.data)
@@ -37,12 +38,13 @@ class Board():
         self.data = tuple(flip(self.data))
         return self
 
-    def chomp(self, x, y):
+    def chomp(self, x, y, auto=True):
         data = list(self.data)
         for row in range(len(data)):
             if x < data[row] and y <= row:
-                data[row] = x            
-        return Board(data)
+                data[row] = x
+        res = Board(data, auto)
+        return res
     
     def __getitem__(self, index):
         return self.data[index]
@@ -99,7 +101,7 @@ class Board():
             return self.can_reach(other.clone(False)._flip(), True)
 
     @staticmethod
-    def get_board(ideal):
+    def get_board(ideal, auto=True):
         s = ideal[1:-1].replace(' ', '')
         r = []
         v = 0
@@ -112,4 +114,4 @@ class Board():
                 c += 1
                 r += [v]
             v = x
-        return Board(tuple(r))
+        return Board(tuple(r), auto=auto)
