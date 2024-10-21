@@ -35,6 +35,8 @@ class ExtendedEvidence : public Evidence {
 private:
     Proof* NULL_PROOF;
     Proof* get(const Board* board, bool is_required);
+    bool get_from_P_positions(const Board* board, Proof** proof);
+    std::set<const Board*> P_positions;
 public:
     ExtendedEvidence(IteratorCode code);
     Proof* get(const Board* board);

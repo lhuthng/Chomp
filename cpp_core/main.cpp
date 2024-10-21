@@ -7,23 +7,13 @@
 
 using namespace std;
 
-int find(Evidence* e, int q, int r) {
-    int p = q;
-    do {
-        stringstream ss;
-        ss << "<(" << p << ",0),(" << q << ",1),(" << r << ",2),(0,3)>";
-        Proof* proof = e->get(Board::get_board(ss.str()));
-        if (proof == nullptr) break;
-        else {
-            if (proof->move.second == 0) return proof->move.first;
-        }
-        p++;
-    } while (true);
-    return p;
-}
 
 int main() {
     ExtendedEvidence e(IteratorCode::ZIGZAC);
-    cout << find(&e, 22, 17) << endl;
+    auto start = std::chrono::high_resolution_clock::now();
+    Proof* proof = e.get(Board::get_board("<(50,0),(0,3)>"));
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    std::cout << "Time taken by function: " << duration.count() << " milliseconds" << std::endl;
     Board::clean_up();
 }

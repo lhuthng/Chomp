@@ -31,8 +31,8 @@ public:
     friend std::ostream& operator<<(std::ostream& os, const Board& board);
     bool operator<(const Board& other) const;
     template <typename GenIter1, typename GenIter2, typename GetFunc>
-    static bool check(GenIter1 begin1, GenIter1 end1, GenIter2 begin2, GenIter2 end2, GetFunc& first, GetFunc& second);
-    bool can_reach(const Board* target) const;
+    static std::pair<int, int> check(GenIter1 begin1, GenIter1 end1, GenIter2 begin2, GenIter2 end2, GetFunc& first, GetFunc& second);
+    std::pair<int, int> can_reach(const Board* target) const;
     bool contains(std::pair<int, int> cell) const;
     const Board* chomp(const std::pair<int, int> &position, bool* is_flipped=nullptr) const;
 

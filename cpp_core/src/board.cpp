@@ -61,7 +61,7 @@ bool Board::operator<(const Board& other) const {
 }
 
 template <typename GenIter1, typename GenIter2, typename GetFunc>
-bool Board::check(GenIter1 begin1, GenIter1 end1, GenIter2 begin2, GenIter2 end2, GetFunc& first, GetFunc& second) {
+pair<int, int> Board::check(GenIter1 begin1, GenIter1 end1, GenIter2 begin2, GenIter2 end2, GetFunc& first, GetFunc& second) {
     auto match = [&first, &second](GenIter1& it1, GenIter2& it2) {
         return first(*it1) == it2->first && second(*it1) == it2->second;
     };
@@ -80,16 +80,32 @@ bool Board::check(GenIter1 begin1, GenIter1 end1, GenIter2 begin2, GenIter2 end2
         rit2 = prev(rit2);
     }
     if (it1 != rit1) {
-        return false;
+        return {-1, -1};
     }
     if (it2 == rit2) {
-        if (it2 == begin2 && it1 == begin1) return first(*it1) < it2->first;
-        if (it2 == end2 && it1 == end1) return second(*it1) < it2->second;
-        return first(*it1) <= rit2->first && second(*it1) <= it2->second;
+        if (it2 == begin2 && it1 == begin1) {
+            if (first(*it1) < it2->first) {
+                return *it1;
+            }
+            else return {-1, -1};
+        } 
+        if (it2 == end2 && it1 == end1) {
+            if (second(*it1) < it2->second) {
+                return *it1;
+            }
+            else return {-1, -1};
+        }
+        if (first(*it1) <= rit2->first && second(*it1) <= it2->second) {
+            return *it1;
+        }
+        return {-1, -1};
     }
-    if (it2 != begin2 && prev(it2) == rit2) return true;
-    if (it2 != end2 && next(it2) != rit2) return false;
-    return first(*it1) <= rit2->first && second(*it1) <= it2->second;
+    if (it2 != begin2 && prev(it2) == rit2) return *it1;
+    if (it2 != end2 && next(it2) != rit2) return {-1, -1};
+    if (first(*it1) <= rit2->first && second(*it1) <= it2->second) {
+        return *it1;
+    }
+    return {-1, -1};
 }
 
 int get_first(const pair<int, int>& pair) {
@@ -100,13 +116,16 @@ int get_second(const pair<int, int>& pair) {
     return pair.second;
 }
 
-bool Board::can_reach(const Board* target) const {
-    return
-        this != target &&
-        (
-            check(p_generators->begin(), p_generators->end(), target->p_generators->begin(), target->p_generators->end(), get_first, get_second) ||
-            check(p_generators->rbegin(), p_generators->rend(), target->p_generators->begin(), target->p_generators->end(), get_second, get_first)
-        );
+pair<int, int> Board::can_reach(const Board* target) const {
+    if (this == target) return {-1, -1};
+    pair<int, int> result;
+    if ((result = check(target->p_generators->begin(), target->p_generators->end(), p_generators->begin(), p_generators->end(), get_first, get_second)) != make_pair(-1, -1)) {
+        return result;
+    }
+    if ((result = check(target->p_generators->begin(), target->p_generators->end(), p_generators->rbegin(), p_generators->rend(), get_second, get_first)) != make_pair(-1, -1)) {
+        return {result.second, result.first};
+    }
+    return {-1, -1};
 }
 
 bool Board::contains(pair<int, int> cell) const {

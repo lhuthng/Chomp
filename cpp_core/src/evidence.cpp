@@ -42,15 +42,14 @@ ExtendedEvidence::ExtendedEvidence(IteratorCode code) : Evidence(code) {
 }
 
 ExtendedEvidence::~ExtendedEvidence() {
+    cout << P_positions.size() << endl;
+    P_positions.clear();
     delete NULL_PROOF;
 }
 
 Proof* ExtendedEvidence::get(const Board* board) {
     return get(board, true);
 }
-
-
-bool get_from_cache();
 
 Proof* ExtendedEvidence::get(const Board* board, bool is_required) {
     auto it = memory.find(board);
@@ -60,6 +59,7 @@ Proof* ExtendedEvidence::get(const Board* board, bool is_required) {
         return proof;
     }
     if (get_from_pattern(board, &proof, is_required, NULL_PROOF)) goto skip;
+    if (get_from_P_positions(board, &proof)) goto skip;
 search:
     {
         proof = nullptr;
@@ -73,6 +73,18 @@ search:
         }
     }
 skip:
+    if (proof == nullptr) P_positions.insert(board);
     memory.insert({ board, proof });
     return proof;
+}
+
+bool ExtendedEvidence::get_from_P_positions(const Board* board, Proof** proof){
+    for (const Board* p : P_positions) {
+        pair<int, int> move = board->can_reach(p);
+        if (move != make_pair(-1, -1)) {
+            *proof = new Proof(move);
+            return true;
+        }
+    }
+    return false;
 }
